@@ -1,4 +1,4 @@
-// Load existing payments from localStorage when the page loads
+// Load existing payments from Firebase when the page loads
 document.addEventListener('DOMContentLoaded', loadPayments);
 
 document.getElementById('paymentForm').addEventListener('submit', function(event) {
@@ -21,67 +21,52 @@ document.getElementById('paymentForm').addEventListener('submit', function(event
         return; // Stop the function if the amount is less than 10
     }
 
-    // Load existing payments from localStorage
-    let payments = JSON.parse(localStorage.getItem('payments')) || [];
+    // Prepare payment data
+    const paymentData = { name, telephone, amount, months: selectedMonths };
 
-    // Check if the member already exists in the payments array
-    const existingPaymentIndex = payments.findIndex(payment => payment.name === name);
-
-    if (existingPaymentIndex > -1) {
-        // If the member exists, update their payment amount
-        payments[existingPaymentIndex].amount += amount;
-        
-        // Update the months in the existing payment
-        const existingMonths = payments[existingPaymentIndex].months;
-        const updatedMonths = [...new Set([...existingMonths, ...selectedMonths])]; // Combine and remove duplicates
-        payments[existingPaymentIndex].months = updatedMonths;
-    } else {
-        // Create a new payment record
-        const newPayment = {
-            name: name,
-            telephone: telephone,
-            amount: amount,
-            months: selectedMonths
-        };
-        payments.push(newPayment);
-    }
-
-    // Save updated payments to localStorage
-    localStorage.setItem('payments', JSON.stringify(payments));
-
-    // Refresh the table display
-    displayPayments(payments);
-
-    // Clear the form
-    document.getElementById('paymentForm').reset();
+    // Send payment data to the server
+    fetch('http://localhost:3000/payments', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(() => {
+        // Refresh the table display
+        loadPayments();
+        // Clear the form
+        document.getElementById('paymentForm').reset();
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
 });
 
-function loadPayments() {
-    const payments = JSON.parse(localStorage.getItem('payments')) || [];
-    displayPayments(payments);
-}
-
-function displayPayments(payments) {
+// Reset button functionality
+document.getElementById('resetButton').addEventListener('click', function() {
+    // Clear all payment records from the display
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = ''; // Clear existing rows
 
-    // Sort payments alphabetically by name
-    payments.sort((a, b) => a.name.localeCompare(b.name));
+    // Reset total payments
+    document.getElementById('totalPayments').innerText = '0';
 
-    payments.forEach(payment => {
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>${payment.name}</td>
-            <td>${payment.telephone}</td>
-            <td>${payment.amount.toFixed(2)}</td>
-            <td>${payment.months.join(', ')}</td>
-        `;
-        tableBody.appendChild(newRow);
-    });
-
-    // Update total payments
-    const totalPayments = payments.reduce((total, payment) => total + payment.amount, 0);
-    document.getElementById('totalPayments').innerText = totalPayments.toFixed(2);
-}
-
-
+    // Optionally, clear the payments from the backend (Firebase)
+    fetch('http://localhost:3000/payments', {
+        method: 'DELETE' // Assuming you have a DELETE endpoint to clear payments
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to reset payments');
+        }
+        console.log('Payments reset successfully');
+    })
+    .catch(error => {
+        console.error('Error resetting payments:',
