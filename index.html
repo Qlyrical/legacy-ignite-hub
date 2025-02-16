@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legacy Ignite Hub Payment Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Legacy Ignite Hub Payment Tracker</h1>
+        <form id="paymentForm">
+            <input type="text" id="name" placeholder="Member Name" required>
+            <input type="tel" id="telephone" placeholder="Telephone Number" required>
+            <div id="monthSelection">
+                <h3>Select Month(s) Paying For:</h3>
+                <label><input type="checkbox" value="January"> January</label>
+                <label><input type="checkbox" value="February"> February</label>
+                <label><input type="checkbox" value="March"> March</label>
+                <label><input type="checkbox" value="April"> April</label>
+                <label><input type="checkbox" value="May"> May</label>
+                <label><input type="checkbox" value="June"> June</label>
+                <label><input type="checkbox" value="July"> July</label>
+                <label><input type="checkbox" value="August"> August</label>
+                <label><input type="checkbox" value="September"> September</label>
+                <label><input type="checkbox" value="October"> October</label>
+                <label><input type="checkbox" value="November"> November</label>
+                <label><input type="checkbox" value="December"> December</label>
+            </div>
+            <button type="submit">Add Payment</button>
+        </form>
+        <table id="paymentTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Telephone</th>
+                    <th>Amount Paid (Cedis)</th>
+                    <th>Months Paying For</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Payment records will be inserted here -->
+            </tbody>
+        </table>
+        <h2>Total Payments: <span id="totalPayments">0</span> Cedis</h2>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
