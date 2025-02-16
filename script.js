@@ -83,3 +83,43 @@ function displayPayments(payments) {
     const totalPayments = payments.reduce((total, payment) => total + payment.amount, 0);
     document.getElementById('totalPayments').innerText = totalPayments.toFixed(2);
 }
+
+
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+const PORT = 3000;
+
+let payments = []; // In-memory storage for demonstration
+
+app.use(cors());
+app.use(bodyParser.json());
+
+// Endpoint to get payments
+app.get('/payments', (req, res) => {
+    res.json(payments);
+});
+
+// Endpoint to add/update payments
+app.post('/payments', (req, res) => {
+    const { name, telephone, amount, months } = req.body;
+    const existingPaymentIndex = payments.findIndex(payment => payment.name === name);
+
+    if (existingPaymentIndex > -1) {
+        // Update existing payment
+        payments[existingPaymentIndex].amount += amount;
+        payments[existingPaymentIndex].months = [...new Set([...payments[existingPaymentIndex].months, ...months])];
+    } else {
+        // Add new payment
+        payments.push({ name, telephone, amount, months });
+    }
+
+    res.status(200).send('Payment saved successfully');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
